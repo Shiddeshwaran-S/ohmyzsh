@@ -1,0 +1,1 @@
+/home/rently/.bash_aliases
