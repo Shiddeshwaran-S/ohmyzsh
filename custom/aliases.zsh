@@ -1,1 +1,1 @@
-/home/rently/.bash_aliases
+shell-aliases

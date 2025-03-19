@@ -1,0 +1,181 @@
+alias con='ssh -i ~/hubPrivatekey.key -p 52152 root@192.168.3.105'
+alias eth='ssh -i ~/hubPrivatekey.key -p 52152 root@10.42.0.105'
+alias update='sudo -- sh -c "apt update && apt upgrade"'
+alias cl='clear'
+alias ec2='ssh -i ~/Documents/HubPackagesBuilder.pem ubuntu@hubbuilder.rentlyorange.com -p 25352'
+alias ec2cp='sftp -oPort=25352 -i ~/Documents/HubPackagesBuilder.pem ubuntu@hubbuilder.rentlyorange.com'
+alias home='cd ~'
+alias rt='cd /'
+alias dl='cd ~/Downloads'
+
+# custom funtions:
+
+# APT shortcuts
+install(){
+sudo apt install $@
+}
+
+# connect to hub
+conn(){
+ssh -i ~/hubPrivatekey.key -p 52152 root@$1
+}
+
+confusb(){
+ sudo ifconfig enx060708090a0b 172.29.223.1 netmask 255.255.255.0
+}
+
+confusbV4(){
+ sudo ifconfig enx123456789abd 192.168.50.2 netmask 255.255.255.0
+}
+
+usbssh() {
+ ssh $1 $2 -p 52152 root@172.29.223.2
+}
+
+usbsshV4() {
+ ssh $1 $2 -p 52152 root@192.168.50.1
+}
+
+# s3 commands
+s3(){
+ aws s3 $1 s3://orange-test-firmware-bucket/$2 $3
+}
+
+# ls
+alias la='ls -lah' 
+
+# scphub
+hubcp(){
+ scp -i hubPrivatekey.key -P 52152 root@$1:$2 $3
+} 
+
+#remote login with hub
+pulse(){
+ ~/remote_ssh/pulse/keyless.js $1
+}
+
+prod(){
+ ~/remote_ssh/prod/keyless.js $1
+}
+
+qeop(){
+ ~/remote_ssh/qeop/keyless.js $1
+}
+
+aura(){
+ ~/remote_ssh/aura/keyless.js $1
+}
+
+certify(){
+ ~/remote_ssh/certify/keyless.js $1
+}
+
+atlas(){
+ ~/remote_ssh/atlas/keyless.js $1
+}
+
+core-qe(){
+ ~/remote_ssh/core-qe/keyless.js $1
+}
+
+core(){
+ ~/remote_ssh/core/keyless.js $1
+}
+
+gethubkeys() {
+  ~/remote_ssh/sshLogin/getPrivateKey.js env=$@
+}
+
+# mount hub storage to ~/Hub
+hubeth(){
+ sshfs -o -p 52152 root@10.42.0.105:/ /home/rently/Hub/ 
+}
+
+# mount hub storage to ~/Hub
+hubusb(){
+ sshfs -o -p 52152 root@172.29.223.2:/ /home/rently/Hub/
+}
+
+hubusbV4(){
+ sshfs -o -p 52152 root@192.168.50.1:/ /home/rently/Hub/
+}
+
+hub(){
+ sshfs -o -p 52152 root@$1:/ $2
+}
+
+# image prepare
+imgsetup() {
+    # Help section
+    if [ "$1" = 'help' ]; then
+        cat <<EOF
+Usage: SCRIPT [ENV, PASS, USB_DEB]
+ENV     : If 'prod', 'hub_env.json' will not be created.
+PASS    : If not provided, password will not be set.
+USB_DEB : If provided, will set cfg_usbdev to the given value.
+EOF
+        return
+    fi
+
+    # Update networker.JSON with WiFi credentials
+    jq -c '.wifi_ssid = "rently" | .wifi_psk = "$3cure6/1TR*nt1Y"' ./networker.JSON | sudo sponge ./networker.JSON
+    echo "networker.JSON updated."
+    sync
+
+    # Create 'hub_env.json' unless 'prod' is specified
+    if [ "$1" != 'prod' ]; then
+        sudo tee ./hub_env.json > /dev/null <<EOF
+{
+  "env": "$1"
+}
+EOF
+        echo "hub_env.json updated with env $1."
+        sync
+    fi
+
+    # Set password if provided
+    if [ "x$2" != 'x-' ]; then
+        password_script="echo -e \""$2"\\\n"$2"\" | passwd"
+        for script in earlysetup.sh init-jobs.sh; do
+            echo "" | sudo tee -a ./$script > /dev/null # Append an empty line
+            echo "$password_script" | sudo tee -a ./$script > /dev/null
+
+            echo "$script updated with password $2."
+        done
+        sync
+    fi
+
+    # Modify USB debugging ['boot/uEnv.txt']
+    if [ -z "$3" ]; then
+        echo "boot/uEnv.txt not modified"
+    elif [ "$3" = "0" ]; then
+        sudo sed -i "s/cfg_usbdev=[0-9]*/cfg_usbdev=0/" ./boot/uEnv.txt
+        sync
+        echo "USB debugging disabled."
+    elif [ "$3" = "1" ]; then
+        sudo sed -i "s/cfg_usbdev=[0-9]*/cfg_usbdev=1/" ./boot/uEnv.txt
+        sync
+        echo "USB debugging enabled."
+    else
+        echo "Argument 3 must be either 0 or 1"
+    fi
+}
+
+# Function to convert epoch time
+epoch() {
+    if [ -z "$1" ]; then
+        echo "Usage: $0 timestamp[s|ms]"
+        return 1
+    fi
+    local epoch_time=$1
+
+    # Check if the input is in milliseconds (more than 10 digits)
+    if [ ${#epoch_time} -gt 10 ]; then
+        epoch_time=$((epoch_time / 1000))  # Convert milliseconds to seconds
+    fi
+
+    # Convert to human-readable format
+    # GNU date (Linux)
+    date -d @"$epoch_time"
+    date -d @"$epoch_time" --utc
+}
