@@ -51,39 +51,39 @@ hubcp(){
 
 #remote login with hub
 pulse(){
- ~/remote_ssh/pulse/keyless.js $1
+ ~/remote_ssh/pulse/keyless.js $@
 }
 
 prod(){
- ~/remote_ssh/prod/keyless.js $1
+ ~/remote_ssh/prod/keyless.js $@
 }
 
 qeop(){
- ~/remote_ssh/qeop/keyless.js $1
+ ~/remote_ssh/qeop/keyless.js $@
 }
 
 aura(){
- ~/remote_ssh/aura/keyless.js $1
+ ~/remote_ssh/aura/keyless.js $@
 }
 
 certify(){
- ~/remote_ssh/certify/keyless.js $1
+ ~/remote_ssh/certify/keyless.js $@
 }
 
 atlas(){
- ~/remote_ssh/atlas/keyless.js $1
+ ~/remote_ssh/atlas/keyless.js $@
 }
 
 core-qe(){
- ~/remote_ssh/core-qe/keyless.js $1
+ ~/remote_ssh/core-qe/keyless.js $@
 }
 
 core(){
- ~/remote_ssh/core/keyless.js $1
+ ~/remote_ssh/core/keyless.js $@
 }
 
 gethubkeys() {
-  ~/remote_ssh/sshLogin/getPrivateKey.js env=$@
+  ~/remote_ssh/sshLogin/getPrivateKey.js env=$1 $2
 }
 
 # mount hub storage to ~/Hub
