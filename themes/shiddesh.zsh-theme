@@ -41,6 +41,18 @@ ZSH_THEME_GIT_PROMPT_SHA_AFTER="%{$WHITE%})"
 
 setopt prompt_subst
 
-PROMPT=$'%{$fg[cyan]%}┌─(%{$fg[white]%}%BShiddesh ⚡ FLASH Team%b%{$fg[cyan]%}) - [%{$fg[white]%}%~%{$fg[cyan]%}] %{$GREEN_BOLD%}$(git_current_branch)$(git_prompt_short_sha)$(git_prompt_status)%{$RESET_COLOR%}
-%{$fg[cyan]%}└─$%{\e[0m%}%b '
+# Make sure you have your git functions defined before this PROMPT
+# For example: autoload -U +X promptinit && promptinit
+
+# Define a variable for your theme name for easier editing
+SPARTAN_THEME="%{$fg[white]%}%BShiddesh ⚡ SPARTANS%b%{$reset_color%}"
+
+# Define a variable for your Git colors
+GIT_PROMPT_COLOR="%{$fg[green]%}"
+
+# Set the PROMPT
+PROMPT=$'%{$fg[cyan]%}╭─(${SPARTAN_THEME}%{$fg[cyan]%}) - [%{$fg[white]%}%~%{$fg[cyan]%}] ${GIT_PROMPT_COLOR}$(git_current_branch)$(git_prompt_short_sha)$(git_prompt_status)%{$reset_color%}
+%{$fg[cyan]%}╰─$%{$reset_color%} '
+
+
 PS2=$' \e[0;34m%}%B>%{\e[0m%}%b '

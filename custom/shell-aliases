@@ -118,7 +118,7 @@ EOF
     fi
 
     # Update networker.JSON with WiFi credentials
-    jq -c '.wifi_ssid = "rently" | .wifi_psk = "$3cure6/1TR*nt1Y"' ./networker.JSON | sudo sponge ./networker.JSON
+    jq -c '.wifi_ssid = "Rently-Devices" | .wifi_psk = "Rently@1234"' ./networker.JSON | sudo sponge ./networker.JSON
     echo "networker.JSON updated."
     sync
 
