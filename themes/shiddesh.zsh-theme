@@ -44,8 +44,10 @@ setopt prompt_subst
 # Make sure you have your git functions defined before this PROMPT
 # For example: autoload -U +X promptinit && promptinit
 
+DISPLAY_NAME=$(getent passwd $USER | cut -d ':' -f 5 | cut -d ',' -f 1)
+
 # Define a variable for your theme name for easier editing
-SPARTAN_THEME="%{$fg[white]%}%BShiddesh ⚡ SPARTANS%b%{$reset_color%}"
+SPARTAN_THEME="%{$fg[white]%}%B${DISPLAY_NAME} ⚡ SPARTANS%b%{$reset_color%}"
 
 # Define a variable for your Git colors
 GIT_PROMPT_COLOR="%{$fg[green]%}"
